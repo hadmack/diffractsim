@@ -13,8 +13,7 @@ Copyright (c) 2022, Rafael de la Fuente
 All rights reserved.
 
 """
-
-def plot_phase(self, E, figsize=(7, 6), xlim=None, ylim=None, grid = False, text = None, max_val = 0.5, units = mm, dark_background = True):
+def plot_phase(self, E, figsize=(7, 6), xlim=None, ylim=None, grid = False, text = None, max_val = 0.5, units = mm, dark_background = True, slice_y_pos = None, slice_x_pos = None):
     """visualize the diffraction pattern phase with matplotlib"""
     
     from ..util.backend_functions import backend as bd
@@ -32,8 +31,11 @@ def plot_phase(self, E, figsize=(7, 6), xlim=None, ylim=None, grid = False, text
     E = E / np.amax(np.abs(E))
 
     fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(1, 1, 1)
-
+    if (slice_y_pos == None) and (slice_x_pos == None):
+        ax = fig.add_subplot(1, 1, 1)
+    else:
+        ax = fig.add_subplot(1, 2, 2)
+    
     if grid == True:
         ax.grid(alpha =0.2)
 
@@ -84,5 +86,74 @@ def plot_phase(self, E, figsize=(7, 6), xlim=None, ylim=None, grid = False, text
                                     norm=mpl.colors.Normalize(vmin=-np.pi, vmax=np.pi),
                                     orientation='vertical')
     cb1.set_label('Phase [radians]')
+
+
+    if slice_y_pos != None:
+        ax_slice = fig.add_subplot(1, 2, 1)
+        plt.subplots_adjust(wspace=0.3)
+        ax_slice.set_title("X slice")
+        #plt.subplots_adjust(right=2)
+
+        if bd != np:
+            x = self.x.get()
+            y = self.y.get()
+        else:
+            x = self.x
+            y = self.y
+
+        Eslice = E[np.argmin(abs(y-slice_y_pos)),:]
+        ax_slice.plot(x/units, np.angle(Eslice))
+        ax_slice.set_ylabel(r'Phase [radians]')
+        
+        if grid == True:
+            ax_slice.grid(alpha =0.2)
+
+        if xlim != None:
+            ax_slice.set_xlim(np.array(xlim)/units)
+
+        if units == mm:
+            ax_slice.set_xlabel("[mm]")
+        elif units == um:
+            ax_slice.set_xlabel("[um]")
+        elif units == cm:
+            ax_slice.set_xlabel("[cm]")
+        elif units == nm:
+            ax_slice.set_xlabel("[nm]")
+        elif units == m:
+            ax_slice.set_xlabel("[m]")
+
+    if slice_x_pos != None:
+        ax_slice = fig.add_subplot(1, 2, 1)
+        plt.subplots_adjust(wspace=0.3)
+        ax_slice.set_title("Y slice")
+        #plt.subplots_adjust(right=2)
+
+        if bd != np:
+            x = self.x.get()
+            y = self.y.get()
+        else:
+            x = self.x
+            y = self.y
+
+        Eslice = E[np.argmin(abs(x-slice_x_pos)),:]
+        ax_slice.plot(y/units, np.angle(Eslice))
+        ax_slice.set_ylabel(r'Phase [radians]')
+
+        if grid == True:
+            ax_slice.grid(alpha =0.2)
+
+        if xlim != None:
+            ax_slice.set_xlim(np.array(ylim)/units)
+
+        if units == mm:
+            ax_slice.set_xlabel("[mm]")
+        elif units == um:
+            ax_slice.set_xlabel("[um]")
+        elif units == cm:
+            ax_slice.set_xlabel("[cm]")
+        elif units == nm:
+            ax_slice.set_xlabel("[nm]")
+        elif units == m:
+            ax_slice.set_xlabel("[m]")
 
     plt.show()
